@@ -38,6 +38,10 @@ contract Protocol is Mutexer {
 
 ### Contract Lock Modifier
 
+```solidity
+modifier contractLock()
+```
+
 ```mermaid
 flowchart LR
     var0[variable 0]
@@ -52,14 +56,14 @@ flowchart LR
     contract --> fn1 --> var2 --> lock
 ```
 
-```solidity
-modifier contractLock()
-```
-
 The contract lock places a lock in transient storage at [`CONTRACT_LOCK`](#contract-lock-slot),
 disallowing any execution context to reenter into the same contract.
 
 ### Function Lock Modifier
+
+```solidity
+modifier functionLock(bytes4 selector)
+```
 
 ```mermaid
 flowchart LR
@@ -76,15 +80,15 @@ flowchart LR
     contract --> fn1 --> var2 --> lock1
 ```
 
-```solidity
-modifier functionLock(bytes4 selector)
-```
-
 The function lock places a lock in transient storage at the `keccak256` digest of a `selector` and
 [`FUNCTION_LOCK_SEED`](#function-lock-seed), disallowing any execution context to reenter into the
 same `selector`.
 
 ### Custom Lock Modifier
+
+```solidity
+modifier customLock(uint256 key)
+```
 
 ```mermaid
 flowchart LR
@@ -103,10 +107,6 @@ flowchart LR
     var2 --> lock1
     fn0 --> var1 --> lock2
     contract --> fn1 --> var2 --> lock2
-```
-
-```solidity
-modifier customLock(uint256 key)
 ```
 
 The custom lock places a lock in transient storage at the `key` slot, disallowing any execution
