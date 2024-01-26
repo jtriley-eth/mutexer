@@ -2,6 +2,8 @@
 pragma solidity 0.8.24;
 
 /// @title Mutexer
+/// @author jtriley.eth
+/// @notice Mutli-granularity Mutex
 abstract contract Mutexer {
     error Locked();
 
