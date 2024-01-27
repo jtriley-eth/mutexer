@@ -6,7 +6,7 @@ pragma solidity 0.8.24;
 /// @notice Mutli-granularity Mutex
 abstract contract Mutexer {
     error Locked();
-
+    error SelectorLocked(bytes4 selector);
     enum Mutex {
         Unlocked,
         Locked
@@ -26,7 +26,7 @@ abstract contract Mutexer {
     modifier functionLock(bytes4 selector) {
         uint256 fnLock = uint256(keccak256(abi.encode(selector, FUNCTION_LOCK_SEED)));
 
-        if (_tload(fnLock) == Mutex.Locked) revert Locked();
+        if (_tload(fnLock) == Mutex.Locked) revert SelectorLocked(selector);
 
         _tstore(fnLock, Mutex.Locked);
         _;

@@ -7,7 +7,7 @@ import {MockMutexer, Access} from "./mocks/MockMutexer.sol";
 
 contract MutexerTest is Test {
     error Locked();
-
+    error SelectorLocked(bytes4 selector);
     event Accessed(Access indexed access);
 
     uint256 internal constant CONTRACT_LOCK = uint256(keccak256("Mutexer.CONTRACT_LOCK")) - 1;
@@ -83,7 +83,8 @@ contract MutexerTest is Test {
     }
 
     function testFunctionLockToFunctionAccessMatch() public {
-        vm.expectRevert(Locked.selector);
+        bytes memory selectorfailed = ((abi.encodeWithSignature("SelectorLocked(bytes4)",MockMutexer.functionLevelAccess.selector)));
+        vm.expectRevert(selectorfailed);
 
         mutexer.functionLockToFunctionAccessMatch();
     }
