@@ -5,7 +5,7 @@ pragma solidity 0.8.24;
 /// @author jtriley.eth
 /// @notice Mutli-granularity Mutex
 abstract contract Mutexer {
-    error Locked();
+    error Locked(uint256 key);
 
     enum Mutex {
         Unlocked,
@@ -16,7 +16,7 @@ abstract contract Mutexer {
     uint256 internal constant FUNCTION_LOCK_SEED = uint256(keccak256("Mutexer.FUNCTION_LOCK_SEED")) - 1;
 
     modifier contractLock() {
-        if (_tload(CONTRACT_LOCK) == Mutex.Locked) revert Locked();
+        if (_tload(CONTRACT_LOCK) == Mutex.Locked) revert Locked(CONTRACT_LOCK);
 
         _tstore(CONTRACT_LOCK, Mutex.Locked);
         _;
@@ -26,7 +26,7 @@ abstract contract Mutexer {
     modifier functionLock(bytes4 selector) {
         uint256 fnLock = uint256(keccak256(abi.encode(selector, FUNCTION_LOCK_SEED)));
 
-        if (_tload(fnLock) == Mutex.Locked) revert Locked();
+        if (_tload(fnLock) == Mutex.Locked) revert Locked(uint256(uint32(selector)));
 
         _tstore(fnLock, Mutex.Locked);
         _;
@@ -34,7 +34,7 @@ abstract contract Mutexer {
     }
 
     modifier customLock(uint256 key) {
-        if (_tload(key) == Mutex.Locked) revert Locked();
+        if (_tload(key) == Mutex.Locked) revert Locked(key);
 
         _tstore(key, Mutex.Locked);
         _;
@@ -42,10 +42,14 @@ abstract contract Mutexer {
     }
 
     function _tstore(uint256 key, Mutex value) private {
-        assembly { tstore(key, value) }
+        assembly {
+            tstore(key, value)
+        }
     }
 
     function _tload(uint256 key) private view returns (Mutex value) {
-        assembly { value := tload(key) }
+        assembly {
+            value := tload(key)
+        }
     }
 }
